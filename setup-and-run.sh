@@ -52,6 +52,10 @@ log_success "SSH 키 동기화 완료"
 # macOS X11 접근 허용 (XQuartz 실행 중일 때만 유효)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     if command -v xhost &> /dev/null; then
+        # DISPLAY가 설정되지 않은 경우 XQuartz 기본값으로 설정
+        if [ -z "$DISPLAY" ]; then
+            export DISPLAY=:0
+        fi
         xhost +localhost > /dev/null 2>&1 \
             && log_success "X11 접근 허용 (xhost +localhost)" \
             || log_warning "xhost 실행 실패 (XQuartz가 실행 중인지 확인하세요)"
