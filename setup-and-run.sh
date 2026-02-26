@@ -10,6 +10,10 @@ NC='\033[0m' # No Color
 # 프로젝트 디렉토리
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# 호스트 UID/GID를 환경변수로 export (docker-compose build args에 주입)
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+
 # 함수: 로깅
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -31,6 +35,30 @@ log_warning() {
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  🚀 Python + React GUI - Docker Setup${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
+
+# 마운트 폴더 생성 (없을 경우 대비)
+mkdir -p ~/Docker/ContainerFolder/ssh_docker
+mkdir -p ~/Docker/ContainerFolder/CurSorServer
+mkdir -p ~/Docker/ContainerFolder/CurSor
+mkdir -p ~/Docker/ContainerFolder/GeMiNi
+mkdir -p ~/Docker/ContainerFolder/ClauDe
+
+# SSH 키를 컨테이너 마운트 폴더에 자동 동기화
+log_info "SSH 키 동기화 중..."
+cp -r ~/.ssh/. ~/Docker/ContainerFolder/ssh_docker/
+chmod 700 ~/Docker/ContainerFolder/ssh_docker
+log_success "SSH 키 동기화 완료"
+
+# macOS X11 접근 허용 (XQuartz 실행 중일 때만 유효)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if command -v xhost &> /dev/null; then
+        xhost +localhost > /dev/null 2>&1 \
+            && log_success "X11 접근 허용 (xhost +localhost)" \
+            || log_warning "xhost 실행 실패 (XQuartz가 실행 중인지 확인하세요)"
+    else
+        log_warning "xhost 없음 - X11 앱 사용 시 XQuartz 설치 필요"
+    fi
+fi
 
 # Docker 설치 확인
 log_info "Docker 설치 확인 중..."

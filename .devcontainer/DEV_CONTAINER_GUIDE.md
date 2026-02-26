@@ -1,226 +1,148 @@
-# 🎯 Dev Container 개발 가이드 (Cursor AI)
+# Dev Container 개발 가이드
 
-Cursor AI에서 Dev Container를 사용하여 컨테이너 내부에서 Python + React 개발을 할 수 있습니다.
+Ubuntu 24.04 + Python 3.12 + Node.js 22 LTS 컨테이너 환경에서 개발하는 방법입니다.
+
+---
 
 ## 🚀 시작하기
 
 ### 1단계: Cursor에서 폴더 열기
 
 ```bash
-# 프로젝트 폴더를 Cursor에서 열기
-cd /Users/juitem/Docker/dockerTest
-cursor .
+cursor ~/Docker/ContainerFolder/dockerTest
 ```
 
-또는 Cursor에서 `File > Open Folder` → `/Users/juitem/Docker/dockerTest` 선택
+또는 `File > Open Folder` → `~/Docker/ContainerFolder/dockerTest`
 
 ### 2단계: Dev Container 시작
 
-1. **Cursor 명령팔레트 열기**: `Cmd + Shift + P`
-2. **명령 입력**: "Dev Containers: Reopen in Container"
-3. **Enter** 누르기
+- `Cmd + Shift + P` → "Dev Containers: Reopen in Container"
+- 또는 오른쪽 아래 `><` 버튼 → "Reopen in Container"
 
-또는 오른쪽 아래 초록색 버튼 `><` 클릭 → "Reopen in Container"
+### 3단계: 빌드 완료 대기
 
-### 3단계: 자동 설정 완료 대기
-
-- 첫 실행은 3-5분 소요
-- Python 3.13 + 개발 도구 자동 설치
-- 로그는 터미널에서 확인 가능
+첫 실행 시 이미지를 빌드합니다 (수 분 소요).
+`.cursor-server` 캐시가 마운트되어 있어 이후 재시작은 빠릅니다.
 
 ---
 
-## 💻 Dev Container 내부에서 개발
+## 💻 컨테이너 내부 개발
 
 ### Python 백엔드 실행
 
-Cursor 터미널 (Cmd + `)에서:
-
 ```bash
-# 백엔드 실행
 cd /workspace/backend
-python -m uvicorn app:app --reload
-
-# 또는 필요한 경우
-pip install -r requirements.txt
 python -m uvicorn app:app --reload
 ```
 
-**API 테스트:**
 ```bash
-# 새 터미널에서
+# 새 터미널에서 API 확인
 curl http://localhost:8000/api/status
 ```
 
-### React 프론트엔드 개발
-
-다른 터미널에서:
+### React 프론트엔드 실행
 
 ```bash
 cd /workspace/frontend
-
-# 의존성 설치 (처음만)
-npm install
-
-# 개발 서버 실행
+npm install    # 첫 실행 시만
 npm start
 ```
 
-**포트 포워딩 자동 설정됨:**
-- Backend (8000) → 자동 포워딩
-- Frontend (3000) → 수동으로 포워딩 가능
+포트 포워딩: Backend(8000) 자동 / Frontend(3000) Ports 탭에서 수동 추가
 
 ---
 
-## 🔍 Dev Container 기능
+## 🔧 설치된 개발 도구
 
-### ✅ 자동 활성화
+### Python 3.12
 
-- ✅ **Python 확장**: IntelliSense, 디버깅, 포매팅
-- ✅ **Git 통합**: 컨테이너 내부에서 git 사용
-- ✅ **포트 포워딩**: 8000번 포트 자동 포워딩
-- ✅ **SSH/Git 자격증명**: 호스트의 설정 자동 마운트
+| 도구 | 용도 |
+|------|------|
+| ipython | 향상된 Python 셸 |
+| ipdb | Python 디버거 |
+| pytest / pytest-cov | 테스트 |
+| black | 코드 포매터 (저장 시 자동 적용) |
+| flake8 | 코드 검사 |
+| pylint | 린터 |
+| mypy | 타입 검사 |
 
-### 📦 설치된 개발 도구
+### Node.js 22 LTS
 
-```
-Python 3.13 + 개발 도구:
-- ipython        (향상된 Python 셸)
-- ipdb           (Python 디버거)
-- pytest         (테스트 프레임워크)
-- black          (코드 포매터)
-- flake8         (코드 검사)
-- pylint         (린터)
-- mypy           (타입 검사)
+React 개발 전용 (frontend 서비스)
 
-Node.js 최신 버전 (React 개발용)
-```
-
----
-
-## 🎨 Cursor 설정 (자동 적용)
-
-Dev Container 시작 시 자동으로 설정됩니다:
-
-### Python 포매팅
-- **Black** 자동 포매팅 (저장 시)
-- **Ruff** 린팅
-
-### 확장 프로그램
-- Python 3.13 (Pylance)
-- Git Lens
-- GitHub Copilot
-- Make Tools
-
----
-
-## 🔗 포트 포워딩
-
-### 자동 포워딩 (8000)
-Backend API가 자동으로 포워딩됩니다.
-
-### 수동 포트 추가 (Frontend 3000)
-
-**방법 1: Cursor UI**
-1. `Ports` 탭 클릭 (아래 패널)
-2. `+` 버튼 → `3000` 입력
-
-**방법 2: devcontainer.json 수정**
-```json
-"forwardPorts": [8000, 3000],
-"portsAttributes": {
-  "8000": { "label": "Backend" },
-  "3000": { "label": "Frontend" }
-}
-```
-
----
-
-## 📝 주요 명령어
-
-### 터미널 명령어
+### Claude Code CLI
 
 ```bash
-# Python 버전 확인
-python --version
-
-# 현재 폴더
-pwd
-
-# 파일 구조
-ls -la /workspace
-
-# Backend 디렉토리
-cd /workspace/backend
-
-# Frontend 디렉토리
-cd /workspace/frontend
-
-# Python 패키지 설치
-pip install package-name
-
-# Node 패키지 설치
-npm install package-name
-
-# 테스트 실행 (pytest)
-pytest
-
-# 코드 품질 검사
-flake8 app.py
-pylint app.py
-mypy app.py
+claude    # 컨테이너 전용 context로 실행
+          # 첫 실행 시 인증 필요 (1회)
+          # 인증 정보는 컨테이너 재생성 후에도 유지됨
 ```
 
 ---
 
-## 🛑 Dev Container 종료/재시작
+## 🗂️ 자동 마운트 구성
 
-### 종료
-Cursor 명령팔레트 (`Cmd + Shift + P`):
-```
-Dev Containers: Reopen Folder Locally
-```
+Dev Container 시작 시 자동으로 마운트됩니다.
 
-### 재시작
-```
-Dev Containers: Rebuild Container
-```
+| 기능 | 호스트 경로 | 컨테이너 경로 |
+|------|------------|--------------|
+| SSH 키 | `ContainerFolder/ssh_docker` | `/home/juitem/.ssh` |
+| Cursor 서버 캐시 | `ContainerFolder/CurSorServer` | `/home/juitem/.cursor-server` |
+| Cursor 설정 | `ContainerFolder/CurSor` | `/home/juitem/.cursor` |
+| Gemini 설정 | `ContainerFolder/GeMiNi` | `/home/juitem/.gemini` |
+| Claude Code | `ContainerFolder/ClauDe` | `/home/juitem/.claude` |
+| 공유 작업 공간 | `ContainerFolder` | `/home/juitem/ContainerFolder` |
 
-### 완전 삭제
+---
+
+## 🔑 SSH / Git
+
+SSH 키가 자동 마운트되어 컨테이너 내부에서 바로 git 사용 가능합니다.
+
 ```bash
-# 호스트 터미널에서
-cd /Users/juitem/Docker/dockerTest
-docker compose down --rmi all
+git clone git@github.com:username/repo.git
+git push origin main
+```
+
+`setup-and-run.sh` 실행 시 `~/.ssh`가 `ssh_docker` 폴더로 자동 동기화됩니다.
+
+---
+
+## 🖥️ X11 GUI 앱 (XQuartz 필요)
+
+macOS에서 컨테이너 내 GUI 앱을 사용하려면:
+
+1. [XQuartz](https://www.xquartz.org) 설치 및 실행
+2. `setup-and-run.sh` 실행 (자동으로 `xhost +localhost` 처리)
+3. 컨테이너 내부에서 테스트:
+
+```bash
+xclock                                          # X11 기본 앱
+python3 -c "import tkinter; tkinter.Tk()"       # Python GUI 테스트
 ```
 
 ---
 
-## 🔄 Docker Compose와 함께 사용
+## 📝 주요 경로
 
-### 시나리오 1: Dev Container만 사용 (권장)
-- Cursor에서 Dev Container로 개발
-- Backend + Frontend 코드 작성 및 테스트
-
-### 시나리오 2: Docker Compose 전체 환경 + Dev Container
-
-**호스트 터미널에서:**
 ```bash
-cd /Users/juitem/Docker/dockerTest
-docker compose up -d
+/workspace/           # 프로젝트 루트 (Dev Container workspaceFolder)
+/workspace/backend/   # Python FastAPI 앱
+/workspace/frontend/  # React 앱
+/app/                 # backend 앱 코드 (Docker Compose 실행 시 working_dir)
+/home/juitem/ContainerFolder/  # 호스트 ContainerFolder와 공유
 ```
 
-**Cursor에서:**
-- Dev Container로 Backend 개발
-- http://localhost:3000으로 Frontend 접속
+---
 
-### 시나리오 3: Frontend 개발만
+## 🛑 Dev Container 제어
 
-Cursor에서 `frontend` 서비스로 Dev Container 시작:
-
-`.devcontainer/devcontainer.json` 수정:
-```json
-"service": "frontend",  // "backend" → "frontend"
-```
+| 작업 | 명령 |
+|------|------|
+| 로컬로 복귀 | `Cmd+Shift+P` → "Reopen Folder Locally" |
+| 재빌드 | `Cmd+Shift+P` → "Rebuild Container" |
+| 완전 재빌드 | `Cmd+Shift+P` → "Rebuild Container (Without Cache)" |
+| 이미지 삭제 | 호스트 터미널: `docker compose down --rmi all` |
 
 ---
 
@@ -229,65 +151,48 @@ Cursor에서 `frontend` 서비스로 Dev Container 시작:
 ### Dev Container 시작 실패
 
 ```bash
-# Docker daemon 확인
-docker ps
-
-# OrbStack/Docker Desktop 재시작 후 다시 시도
+docker ps    # Docker/OrbStack 실행 확인
+# 재시도: Cmd+Shift+P → Rebuild Container
 ```
 
-### Python 패키지 설치 안 됨
+### Python 인터프리터 못 찾음
+
+```
+Cmd + Shift + P → Python: Select Interpreter → /usr/bin/python3.12
+```
+
+### pip 설치 실패
 
 ```bash
-# Dev Container 내부에서
-pip install --upgrade pip
-pip install -r /workspace/backend/requirements.txt
+pip install --break-system-packages package-name
+```
+
+### Claude Code 인증 필요
+
+```bash
+claude    # 컨테이너 내부 터미널에서 실행, 1회 인증
 ```
 
 ### 포트 충돌
 
-`.devcontainer/devcontainer.json`에서 포트 변경:
+`devcontainer.json`에서 포트 번호 변경 후 Rebuild:
 ```json
-"forwardPorts": [8001],  // 8000 → 8001
-```
-
-### Git 명령어 작동 안 함
-
-```bash
-# Dev Container 내부에서
-git config --global user.email "your-email@example.com"
-git config --global user.name "Your Name"
+"forwardPorts": [8001]
 ```
 
 ---
 
 ## 💡 팁
 
-### 1. 빠른 재시작
-```
-Dev Containers: Rebuild Container (Without Cache)
-```
-캐시 없이 완전히 재빌드
+### 디버깅 설정
 
-### 2. 기본 설정 변경
-`.devcontainer/devcontainer.json` 수정 후:
-```
-Dev Containers: Rebuild Container
-```
-
-### 3. Cursor에서 Python 선택
-```
-Cmd + Shift + P → Python: Select Interpreter
-→ /usr/bin/python3.13 선택
-```
-
-### 4. 디버깅 설정
 `.vscode/launch.json` 생성:
 ```json
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: FastAPI",
+      "name": "FastAPI",
       "type": "python",
       "request": "launch",
       "module": "uvicorn",
@@ -298,21 +203,20 @@ Cmd + Shift + P → Python: Select Interpreter
 }
 ```
 
+### 추가 패키지 영구 설치
+
+`.devcontainer/devcontainer.json`에 추가:
+```json
+"postCreateCommand": "pip install numpy pandas"
+```
+
+이후 `Rebuild Container` 실행
+
 ---
 
-## 📚 참고 자료
+## 📚 참고
 
 - [Dev Containers 공식 문서](https://containers.dev)
-- [Cursor AI 문서](https://docs.cursor.sh)
-- [Docker Compose 문서](https://docs.docker.com/compose)
-
----
-
-## ✨ 다음 단계
-
-1. ✅ Dev Container 시작
-2. ✅ Backend + Frontend 코드 작성
-3. ✅ `docker-compose up -d`로 전체 테스트
-4. ✅ 배포!
-
-**Happy coding! 🚀**
+- [Cursor 문서](https://docs.cursor.sh)
+- [프로젝트 전체 가이드](../README.md)
+- [Cursor/Dev Container 빠른 설정](../CURSOR_SETUP.md)

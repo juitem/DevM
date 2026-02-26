@@ -1,138 +1,203 @@
-# Python + React GUI Docker Application
+# Python + React Docker 개발 환경
 
-Ubuntu 24.04 + Python 3.13 + React 기반의 Docker 개발 환경입니다.
-
-## 🚀 빠른 시작
-
-### 자동 설정 및 실행 (권장)
-
-```bash
-cd /Users/juitem/Docker/dockerTest
-./setup-and-run.sh
-```
-
-### 수동 실행
-
-```bash
-cd /Users/juitem/Docker/dockerTest
-docker compose up -d
-```
+Ubuntu 24.04 + Python 3.12 + React + Node.js 22 LTS 기반 Docker 개발 환경입니다.
 
 ## 📋 시스템 요구사항
 
-- **OrbStack** 또는 **Docker Desktop** (설치 및 실행 중)
-- **Git** (선택)
+- **OrbStack** 또는 **Docker Desktop** (실행 중)
+- **macOS** (XQuartz - X11 앱 개발 시 선택)
 
-## 🔗 접속 주소
-
-- **Frontend UI**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API 상태 확인**: http://localhost:8000/api/status
+---
 
 ## 📂 프로젝트 구조
 
 ```
-dockerTest/
-├── backend/
-│   ├── Dockerfile          # Python 3.13 + FastAPI
-│   ├── requirements.txt    # Python 의존성
-│   └── app.py             # FastAPI 애플리케이션
-├── frontend/
-│   ├── Dockerfile         # Node.js + React
-│   ├── package.json       # Node.js 의존성
-│   ├── public/
-│   │   └── index.html
-│   └── src/
-│       ├── App.js
-│       ├── App.css
-│       ├── index.js
-│       └── index.css
-├── docker-compose.yml     # Docker Compose 설정
-├── setup-and-run.sh       # 자동 실행 스크립트
-└── README.md
+~/Docker/ContainerFolder/
+├── ssh_docker/               ← SSH 키 (setup-and-run.sh가 자동 동기화)
+├── CurSorServer/             ← Cursor 서버 캐시 (Dev Container 재사용)
+├── CurSor/                   ← Cursor 설정 영속
+├── GeMiNi/                   ← Gemini AI 설정 영속
+├── ClauDe/                   ← Claude Code CLI 설정 영속 (컨테이너 전용)
+└── dockerTest/               ← 프로젝트 폴더
+    ├── .devcontainer/
+    │   ├── devcontainer.json  (Cursor/VS Code Dev Container 설정)
+    │   ├── Dockerfile         (Dev Container + Docker Compose 공용 이미지)
+    │   └── DEV_CONTAINER_GUIDE.md
+    ├── backend/
+    │   ├── Dockerfile         (미사용 - 참고용)
+    │   ├── requirements.txt   (Python 의존성)
+    │   └── app.py             (FastAPI 애플리케이션)
+    ├── frontend/
+    │   ├── Dockerfile         (React 전용 이미지)
+    │   ├── package.json
+    │   ├── public/
+    │   └── src/
+    ├── docker-compose.yml     (Docker Compose 설정)
+    ├── setup-and-run.sh       (실행 스크립트)
+    ├── docker_down.sh         (중지 스크립트)
+    ├── CURSOR_SETUP.md        (Dev Container 가이드)
+    └── README.md
 ```
 
-## 🛠️ 유용한 명령어
+---
+
+## 🎯 두 가지 실행 방식
+
+### 방식 1: Cursor / VS Code Dev Container (개발용 권장)
+
+```
+Cursor 열기 → "Reopen in Container"
+  → devcontainer.json 읽음
+  → docker-compose.yml 실행 (backend + frontend 모두 시작)
+  → IDE가 backend 컨테이너 내부에 연결됨
+```
+
+→ 자세한 내용: [CURSOR_SETUP.md](CURSOR_SETUP.md)
+
+### 방식 2: Docker Compose 직접 실행 (서비스 테스트용)
+
+```bash
+cd ~/Docker/ContainerFolder/dockerTest
+./setup-and-run.sh
+```
+
+두 방식 모두 **동일한 `.devcontainer/Dockerfile` 이미지**를 사용합니다.
+
+---
+
+## 🚀 빠른 시작 (Docker Compose)
+
+```bash
+cd ~/Docker/ContainerFolder/dockerTest
+./setup-and-run.sh
+```
+
+`setup-and-run.sh`는 실행 전 자동으로:
+1. 마운트 폴더 생성 (`ContainerFolder` 하위)
+2. `~/.ssh` → `ssh_docker` 동기화
+3. macOS X11 접근 허용 (`xhost +localhost`)
+4. Docker Compose 빌드 및 실행
+
+### 접속 주소
+
+| 서비스 | URL |
+|--------|-----|
+| Frontend UI | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API 상태 확인 | http://localhost:8000/api/status |
+
+---
+
+## 🛠️ 주요 명령어
+
+### 실행 / 중지
+
+```bash
+# 실행 (SSH 동기화 + xhost 포함)
+./setup-and-run.sh
+
+# 중지
+./docker_down.sh
+
+# 수동 실행
+docker compose up -d
+
+# 수동 중지
+docker compose down
+```
+
+### 컨테이너 접속
+
+```bash
+# backend (Python 환경)
+docker compose exec backend bash
+
+# frontend (Node.js 환경)
+docker compose exec frontend sh
+
+# root 권한으로 접속
+docker compose exec --user root backend bash
+```
 
 ### 로그 확인
-```bash
-# 모든 서비스 로그
-docker compose logs -f
 
-# 특정 서비스 로그만
+```bash
+docker compose logs -f
 docker compose logs -f backend
 docker compose logs -f frontend
 ```
 
-### 서비스 상태 확인
-```bash
-docker compose ps
-```
+### 이미지 재빌드
 
-### 컨테이너에 접속
 ```bash
-# Backend (Python)
-docker compose exec backend bash
+# 변경사항 반영하여 재빌드
+docker compose up -d --build
 
-# Frontend (Node.js)
-docker compose exec frontend sh
-```
-
-### 이미지 크기 확인
-```bash
-docker images | grep python-gui
-```
-
-### 서비스 재시작
-```bash
-docker compose restart
-```
-
-### 모든 것을 새로 빌드
-```bash
+# 캐시 없이 완전 재빌드
+docker compose down --rmi all
 docker compose up -d --build
 ```
 
-### 서비스 중지 및 정리
-```bash
-# 컨테이너만 중지
-docker compose stop
+---
 
-# 컨테이너 제거
-docker compose down
+## 🔧 이미지 구성
 
-# 이미지까지 삭제
-docker compose down --rmi all
-```
+`.devcontainer/Dockerfile` 한 개로 Dev Container와 Docker Compose 모두 동작합니다.
+
+### 설치된 환경
+
+| 항목 | 버전 |
+|------|------|
+| OS | Ubuntu 24.04 |
+| Python | 3.12 |
+| Node.js | 22 LTS |
+| pip 패키지 | FastAPI, uvicorn, pytest, black, flake8, pylint, mypy, ipython 등 |
+| 기타 | Claude Code CLI, X11 지원 |
+
+### 볼륨 마운트 (backend)
+
+| 호스트 경로 | 컨테이너 경로 | 용도 |
+|-------------|--------------|------|
+| `./backend` | `/app` | 앱 코드 |
+| `~/Docker/ContainerFolder/ssh_docker` | `/home/juitem/.ssh` | SSH 키 |
+| `~/Docker/ContainerFolder` | `/home/juitem/ContainerFolder` | 공유 작업 공간 |
+| `~/Docker/ContainerFolder/CurSor` | `/home/juitem/.cursor` | Cursor 설정 |
+| `~/Docker/ContainerFolder/GeMiNi` | `/home/juitem/.gemini` | Gemini 설정 |
+| `~/Docker/ContainerFolder/ClauDe` | `/home/juitem/.claude` | Claude Code 설정 |
+
+---
 
 ## 🔄 개발 워크플로우
 
 ### Python 백엔드 수정
-1. `backend/app.py` 또는 `backend/requirements.txt` 수정
-2. 자동으로 reload됨 (hot reload 활성화)
 
-### React 프론트엔드 수정
-1. `frontend/src/` 파일 수정
-2. 자동으로 reload됨
+`backend/app.py` 수정 → uvicorn이 자동 reload
 
-### 새로운 Python 패키지 설치
+### Python 패키지 추가
+
 ```bash
 # 1. requirements.txt에 추가
-# 2. 아래 명령어 실행
+# 2. 재빌드
 docker compose up -d --build backend
 ```
 
-### 새로운 Node.js 패키지 설치
-```bash
-# 1. frontend 폴더에서
-npm install package-name
+### React 프론트엔드 수정
 
-# 2. package.json 변경 감지 후 자동으로 재빌드됨
+`frontend/src/` 파일 수정 → 자동 reload
+
+### Node.js 패키지 추가
+
+```bash
+# frontend 컨테이너 내부에서
+npm install package-name
 ```
+
+---
 
 ## 📚 API 예제
 
 ### 상태 조회
+
 ```bash
 curl http://localhost:8000/api/status
 ```
@@ -141,71 +206,58 @@ curl http://localhost:8000/api/status
 ```json
 {
   "status": "running",
-  "python_version": "3.13",
+  "python_version": "3.12",
   "platform": "Ubuntu 24.04"
 }
 ```
 
 ### 데이터 처리
+
 ```bash
 curl -X POST http://localhost:8000/api/process \
   -H "Content-Type: application/json" \
   -d '{"data": "test"}'
 ```
 
-응답:
-```json
-{
-  "result": "Processed: {'data': 'test'}"
-}
-```
+---
 
 ## 🐛 트러블슈팅
 
-### 포트 충돌 (3000, 8000이 이미 사용 중)
+### 포트 충돌 (3000, 8000)
 
-`docker-compose.yml`을 수정하여 포트 변경:
+`docker-compose.yml`에서 포트 변경:
 ```yaml
 ports:
-  - "3001:3000"  # 프론트엔드 포트 변경
-  - "8001:8000"  # 백엔드 포트 변경
+  - "3001:3000"
+  - "8001:8000"
 ```
 
-### 메모리 부족
-```bash
-# Docker 메모리 증가 (설정에서 조정 권장)
-# Docker Desktop → Preferences → Resources
-```
+### 빌드 실패 / 이미지 초기화
 
-### 빌드 실패
 ```bash
-# 이전 이미지 삭제 후 재빌드
 docker compose down --rmi all
 docker compose up -d --build
 ```
 
-### npm/pip 설치 실패
-```bash
-# 캐시 삭제 및 재빌드
-docker system prune -a
-docker compose up -d --build
-```
+### 파일 권한 문제
 
-## 📝 커스터마이징
+`setup-and-run.sh`를 통해 실행하면 호스트 UID/GID로 빌드되어 자동 해결됩니다.
 
-### Python 버전 변경
-`backend/Dockerfile`에서:
-```dockerfile
-FROM python:3.13-slim  # 또는 다른 버전
-```
+### X11 앱이 실행 안 됨
 
-### React 추가 패키지
-`frontend/package.json`에 추가 후:
-```bash
-docker compose up -d --build frontend
-```
+1. XQuartz 설치 및 실행
+2. `setup-and-run.sh` 실행 (xhost 자동 설정)
+3. 또는 수동으로: `xhost +localhost`
 
-### 데이터베이스 추가
+### SSH / git push 안 됨
+
+`setup-and-run.sh` 실행 시 `~/.ssh`가 자동 동기화됩니다.
+수동 동기화: `cp -r ~/.ssh/. ~/Docker/ContainerFolder/ssh_docker/`
+
+---
+
+## 🗄️ 데이터베이스 추가 예시
+
 `docker-compose.yml`에 서비스 추가:
 ```yaml
 services:
@@ -216,30 +268,3 @@ services:
     ports:
       - "5432:5432"
 ```
-
-## 🌍 배포 준비
-
-### 프로덕션 빌드 (React)
-```bash
-docker compose exec frontend npm run build
-```
-
-### Docker 이미지 최적화
-`frontend/Dockerfile`에서 멀티 스테이지 빌드 사용:
-```dockerfile
-FROM node:20-alpine AS builder
-...
-FROM node:20-alpine
-COPY --from=builder /app/build ./build
-```
-
-## 📞 지원
-
-문제가 발생하면:
-1. 로그 확인: `docker compose logs -f`
-2. Docker 상태 확인: `docker compose ps`
-3. 시스템 정보 확인: `docker info`
-
-## 📄 라이선스
-
-MIT

@@ -10,6 +10,10 @@ NC='\033[0m' # No Color
 # 프로젝트 디렉토리
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# 호스트 UID/GID export
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+
 # 함수: 로깅
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"

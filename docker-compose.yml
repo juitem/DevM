@@ -8,6 +8,9 @@ services:
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
+      args:
+        USER_ID: "${USER_ID:-501}"
+        GROUP_ID: "${GROUP_ID:-20}"
     container_name: python-gui-backend
     ports:
       - "8000:8000"
@@ -15,9 +18,15 @@ services:
       - ./backend:/app
       - /app/__pycache__
       - /workspace:/workspace  # Dev Container 호환
+      - ~/Docker/ContainerFolder/ssh_docker:/home/juitem/.ssh:ro
+      - ~/Docker/ContainerFolder:/home/juitem/ContainerFolder
+      - ~/Docker/ContainerFolder/CurSor:/home/juitem/.cursor
+      - ~/Docker/ContainerFolder/GeMiNi:/home/juitem/.gemini
+      - ~/Docker/ContainerFolder/ClauDe:/home/juitem/.claude
     environment:
       - PYTHONUNBUFFERED=1
       - ENVIRONMENT=development
+      - DISPLAY=host.docker.internal:0
     working_dir: /app
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:

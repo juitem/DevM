@@ -37,6 +37,17 @@
       }
     }
   },
+  "mounts": [
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ssh_docker,target=/home/juitem/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSorServer,target=/home/juitem/.cursor-server,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSor,target=/home/juitem/.cursor,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/GeMiNi,target=/home/juitem/.gemini,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ClauDe,target=/home/juitem/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached"
+  ],
+  "containerEnv": {
+    "DISPLAY": "host.docker.internal:0"
+  },
   "forwardPorts": [8000],
   "portsAttributes": {
     "8000": {
