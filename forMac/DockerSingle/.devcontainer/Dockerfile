@@ -79,9 +79,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
-RUN mkdir -p /workspace && chown ${USER_ID}:${GROUP_ID} /workspace
-
 USER $USERNAME
-WORKDIR /workspace
+WORKDIR /home/juitem
 
 CMD ["/bin/bash"]

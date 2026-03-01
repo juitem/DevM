@@ -96,14 +96,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
-# Set workspace ownership to user
-RUN mkdir -p /workspace && chown ${USER_ID}:${GROUP_ID} /workspace
-
 # Switch to non-root user
 USER $USERNAME
 
 # Working directory
-WORKDIR /workspace
+WORKDIR /home/juitem
 
 # Default command
 CMD ["/bin/bash"]
