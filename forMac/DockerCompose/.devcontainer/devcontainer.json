@@ -43,7 +43,10 @@
     "source=${localEnv:HOME}/Docker/ContainerFolder/CurSor,target=/home/juitem/.cursor,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/GeMiNi,target=/home/juitem/.gemini,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/ClauDe,target=/home/juitem/.claude,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/GitConfig/.gitconfig,target=/home/juitem/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/NpM,target=/home/juitem/.npm,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/BashAliases/.bash_aliases,target=/home/juitem/.bash_aliases,type=bind,consistency=cached"
   ],
   "containerEnv": {
     "DISPLAY": "host.docker.internal:0"

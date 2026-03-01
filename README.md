@@ -96,8 +96,37 @@ bash ~/ContainerFolder/devM/forUbuntu/DockerSingle/dev-start.sh
 - OS: Ubuntu 24.04
 - Python: 3.12
 - Node.js: 22 LTS
-- 기본 설치 패키지: `nano`, `tree`, `mc`, `zip`, `unzip`, `lsof`, `iproute2`
-- 마운트: `~/.ssh`, `~/.cursor`, `~/.claude`, `~/.gemini`, `ContainerFolder` 전체
+- 기본 설치 패키지: `nano`, `tree`, `mc`, `zip`, `unzip`, `gitk`, `lsof`, `iproute2`
+
+### 마운트 목록
+
+| 호스트 경로 (`~/Docker/ContainerFolder/`) | 컨테이너 경로 |
+|------------------------------------------|---------------|
+| `ssh_docker/` | `~/.ssh` |
+| `CurSorServer/` | `~/.cursor-server` |
+| `CurSor/` | `~/.cursor` |
+| `GeMiNi/` | `~/.gemini` |
+| `ClauDe/` | `~/.claude` |
+| `GitConfig/.gitconfig` | `~/.gitconfig` |
+| `NpM/` | `~/.npm` |
+| `BashAliases/.bash_aliases` | `~/.bash_aliases` |
+| `ContainerFolder/` (전체) | `~/ContainerFolder` |
+
+> `~/.bash_aliases`는 Ubuntu의 기본 `.bashrc`가 자동으로 source 함.
+> `GitConfig/.gitconfig`는 최초 실행 전 Mac의 `~/.gitconfig`를 복사해 둘 것.
+
+---
+
+## X11 GUI 앱 (gitk 등) 사용 시 - Mac 전용
+
+OrbStack + XQuartz 환경에서 `gitk` 등 X11 앱 사용 방법:
+
+1. **XQuartz 설치**: https://www.xquartz.org
+2. **네트워크 연결 허용**: XQuartz 실행 → 환경설정 → 보안 탭 → **"네트워크 클라이언트 연결 허용"** 체크
+3. **XQuartz 재시작** (설정 변경 후 반드시)
+4. `setup-and-run.sh` 실행 시 자동으로 `xhost +local:` 처리됨
+
+Ubuntu는 `/tmp/.X11-unix` 소켓 마운트 방식이므로 별도 설정 불필요.
 
 ---
 

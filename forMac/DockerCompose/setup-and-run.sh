@@ -52,13 +52,14 @@ log_success "SSH 키 동기화 완료"
 # macOS X11 접근 허용 (XQuartz 실행 중일 때만 유효)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     if command -v xhost &> /dev/null; then
-        # DISPLAY가 설정되지 않은 경우 XQuartz 기본값으로 설정
         if [ -z "$DISPLAY" ]; then
             export DISPLAY=:0
         fi
-        xhost +localhost > /dev/null 2>&1 \
-            && log_success "X11 접근 허용 (xhost +localhost)" \
+        # +local: : 유닉스 소켓 경유 로컬 연결 전체 허용 (OrbStack 호환)
+        xhost +local: > /dev/null 2>&1 \
+            && log_success "X11 접근 허용 (xhost +local:)" \
             || log_warning "xhost 실행 실패 (XQuartz가 실행 중인지 확인하세요)"
+        log_info "gitk 등 X11 앱 사용 시: XQuartz 환경설정 → 보안 → '네트워크 클라이언트 연결 허용' 체크 필요"
     else
         log_warning "xhost 없음 - X11 앱 사용 시 XQuartz 설치 필요"
     fi

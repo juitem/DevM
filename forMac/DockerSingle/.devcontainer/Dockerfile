@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mc \
     zip \
     unzip \
+    gitk \
     && rm -rf /var/lib/apt/lists/*
 
 # 호스트 UID/GID와 일치하는 사용자 생성
