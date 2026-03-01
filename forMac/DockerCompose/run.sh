@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# macOS 전용 스크립트
+# macOS only script
 if [[ "$OSTYPE" != "darwin"* ]]; then
-    echo "이 스크립트는 macOS 전용입니다. 컨테이너 내부에서 실행하지 마세요."
+    echo "This script is macOS only. Do not run inside a container."
     exit 1
 fi
 

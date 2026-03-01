@@ -1,62 +1,61 @@
-# devM - Dev Container 템플릿
+# devM - Dev Container Templates
 
-Python (FastAPI) + React 개발 환경을 위한 Docker Dev Container 템플릿 모음.
+A collection of Docker Dev Container templates for Python (FastAPI) + React development environments.
 
-## 폴더 구조
+## Folder Structure
 
 ```
 devM/
 ├── forMac/
-│   ├── DockerCompose/   # Mac + 컨테이너 분리 방식
-│   └── DockerSingle/    # Mac + 단일 컨테이너 방식
+│   ├── DockerCompose/   # Mac + separate containers
+│   └── DockerSingle/    # Mac + single container
 └── forUbuntu/
-    ├── DockerCompose/   # Ubuntu + 컨테이너 분리 방식
-    └── DockerSingle/    # Ubuntu + 단일 컨테이너 방식
+    ├── DockerCompose/   # Ubuntu + separate containers
+    └── DockerSingle/    # Ubuntu + single container
 ```
 
 ---
 
-## 방식 선택
+## Choosing a Setup
 
 ### DockerCompose vs DockerSingle
 
 | | DockerCompose | DockerSingle |
 |---|---|---|
-| 컨테이너 수 | backend + frontend 각각 | 하나로 통합 |
-| Dev Container 진입 | backend 컨테이너에만 attach | 전체 접근 가능 |
-| frontend 터미널 접근 | 호스트에서 `docker compose exec frontend sh` | 동일 터미널에서 가능 |
-| 서버 시작 | 컨테이너 기동 시 자동 (uvicorn) | `bash dev-start.sh` 수동 실행 |
+| Containers | backend + frontend separately | combined into one |
+| Dev Container attach | backend container only | full access |
+| frontend terminal access | `docker compose exec frontend sh` from host | available in same terminal |
+| Server startup | automatic on container start (uvicorn) | run `bash dev-start.sh` manually |
 
 ### forMac vs forUbuntu
 
 | | forMac | forUbuntu |
 |---|---|---|
-| USER_ID 기본값 | 501 | 1000 |
-| GROUP_ID 기본값 | 20 (staff) | 1000 |
-| Docker 런타임 | OrbStack (권장) / Docker Desktop | Docker Engine |
-| X11 (GUI 앱) | XQuartz + `host.docker.internal:0` | `/tmp/.X11-unix` 소켓 마운트 |
-| host 접근 | OrbStack/Docker Desktop 자동 처리 | `--add-host=host.docker.internal:host-gateway` |
-| 브라우저 자동 열기 | `open` | `xdg-open` |
+| USER_ID default | 501 | 1000 |
+| GROUP_ID default | 20 (staff) | 1000 |
+| Docker runtime | OrbStack (recommended) / Docker Desktop | Docker Engine |
+| X11 (GUI apps) | XQuartz + `host.docker.internal:0` | `/tmp/.X11-unix` socket mount |
+| host access | handled automatically by OrbStack/Docker Desktop | `--add-host=host.docker.internal:host-gateway` |
+| open browser | `open` | `xdg-open` |
 
 ---
 
-## 사용법
+## Usage
 
 ### DockerCompose (Mac)
 
 ```bash
-# 최초 설치 / 전체 초기화
+# Initial setup / full reset
 bash forMac/DockerCompose/setup-and-run.sh
 
-# 일상적인 시작
+# Daily start
 bash forMac/DockerCompose/run.sh
 
-# 중지
+# Stop
 bash forMac/DockerCompose/docker_down.sh
 ```
 
-Dev Container로 개발할 때는 Cursor/VS Code에서 `forMac/DockerCompose` 폴더를 열고
-**Reopen in Container** 선택.
+For development with Dev Container, open the `forMac/DockerCompose` folder in Cursor/VS Code and select **Reopen in Container**.
 
 ### DockerCompose (Ubuntu)
 
@@ -68,39 +67,38 @@ bash forUbuntu/DockerCompose/docker_down.sh
 
 ### DockerSingle (Mac / Ubuntu)
 
-호스트에서 별도 스크립트 없음. Cursor/VS Code에서 해당 폴더를 열고
-**Reopen in Container** → 컨테이너 진입 후 터미널에서:
+No host script needed. Open the folder in Cursor/VS Code, select **Reopen in Container**, then from the terminal inside the container:
 
 ```bash
 bash ~/ContainerFolder/devM/forMac/DockerSingle/dev-start.sh
-# 또는
+# or
 bash ~/ContainerFolder/devM/forUbuntu/DockerSingle/dev-start.sh
 ```
 
-`dev-start.sh`는 기존에 실행 중인 프로세스를 종료하고 재시작함.
+`dev-start.sh` stops any running processes and restarts them.
 
 ---
 
-## 접속 정보
+## Access URLs
 
-| 서비스 | URL |
+| Service | URL |
 |--------|-----|
 | Frontend (React) | http://localhost:3000 |
 | Backend (FastAPI) | http://localhost:8000 |
-| API 상태 확인 | http://localhost:8000/api/status |
+| API status | http://localhost:8000/api/status |
 
 ---
 
-## 공통 스펙
+## Common Specs
 
 - OS: Ubuntu 24.04
 - Python: 3.12
 - Node.js: 22 LTS
-- 기본 설치 패키지: `nano`, `tree`, `mc`, `zip`, `unzip`, `gitk`, `lsof`, `iproute2`
+- Default packages: `nano`, `tree`, `mc`, `zip`, `unzip`, `gitk`, `lsof`, `iproute2`
 
-### 마운트 목록
+### Mount List
 
-| 호스트 경로 (`~/Docker/ContainerFolder/`) | 컨테이너 경로 |
+| Host path (`~/Docker/ContainerFolder/`) | Container path |
 |------------------------------------------|---------------|
 | `ssh_docker/` | `~/.ssh` |
 | `CurSorServer/` | `~/.cursor-server` |
@@ -110,31 +108,50 @@ bash ~/ContainerFolder/devM/forUbuntu/DockerSingle/dev-start.sh
 | `GitConfig/.gitconfig` | `~/.gitconfig` |
 | `NpM/` | `~/.npm` |
 | `BashAliases/.bash_aliases` | `~/.bash_aliases` |
-| `ContainerFolder/` (전체) | `~/ContainerFolder` |
+| `ContainerFolder/` (full) | `~/ContainerFolder` |
 
-> `~/.bash_aliases`는 Ubuntu의 기본 `.bashrc`가 자동으로 source 함.
-> `GitConfig/.gitconfig`는 최초 실행 전 Mac의 `~/.gitconfig`를 복사해 둘 것.
+> `~/.bash_aliases` is automatically sourced by Ubuntu's default `.bashrc`.
 
----
+**Before first run, prepare the following directories/files on the host:**
+```bash
+mkdir -p ~/Docker/ContainerFolder/GitConfig
+mkdir -p ~/Docker/ContainerFolder/NpM
+mkdir -p ~/Docker/ContainerFolder/BashAliases
+touch ~/Docker/ContainerFolder/BashAliases/.bash_aliases
 
-## X11 GUI 앱 (gitk 등) 사용 시 - Mac 전용
-
-OrbStack + XQuartz 환경에서 `gitk` 등 X11 앱 사용 방법:
-
-1. **XQuartz 설치**: https://www.xquartz.org
-2. **네트워크 연결 허용**: XQuartz 실행 → 환경설정 → 보안 탭 → **"네트워크 클라이언트 연결 허용"** 체크
-3. **XQuartz 재시작** (설정 변경 후 반드시)
-4. `setup-and-run.sh` 실행 시 자동으로 `xhost +local:` 처리됨
-
-Ubuntu는 `/tmp/.X11-unix` 소켓 마운트 방식이므로 별도 설정 불필요.
+# Copy gitconfig (Mac)
+cp ~/.gitconfig ~/Docker/ContainerFolder/GitConfig/.gitconfig
+```
 
 ---
 
-## devcontainer.json 주요 설정 비교
+## X11 GUI Apps (gitk, etc.) - Mac only
+
+Setup for `gitk` and other X11 apps in OrbStack + XQuartz environment:
+
+1. **Install XQuartz**: https://www.xquartz.org
+2. **Allow network connections**: XQuartz → Preferences → Security tab → check **"Allow connections from network clients"**
+3. **Restart XQuartz** (required after changing the setting)
+4. Start XQuartz before opening the container
+
+**Authentication is handled automatically:**
+- **DockerCompose**: `setup-and-run.sh` generates `xhost +local:` and the X11 auth cookie (`/tmp/.docker.xauth`) automatically
+- **DockerSingle**: cookie is generated via `initializeCommand` when Reopen in Container is run in VS Code
+
+> **How it works**: OrbStack containers connect to XQuartz over TCP, so MIT-MAGIC-COOKIE authentication is required.
+> The command `xauth nlist :0 | sed 's/^..../ffff/'` generates a FamilyWild cookie, saves it to `/tmp/.docker.xauth`, and mounts it as `.Xauthority` inside the container.
+
+Ubuntu uses `/tmp/.X11-unix` socket mount, so no additional setup is needed.
+
+---
+
+## devcontainer.json Key Settings Comparison
 
 ### forMac
 ```json
-"containerEnv": { "DISPLAY": "host.docker.internal:0" }
+"initializeCommand": ["bash", "-c", "touch /tmp/.docker.xauth; xauth nlist :0 | sed 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -; true"],
+"containerEnv": { "DISPLAY": "host.docker.internal:0", "XAUTHORITY": "/home/juitem/.Xauthority" },
+"mounts": [ "source=/tmp/.docker.xauth,target=/home/juitem/.Xauthority,type=bind,consistency=cached" ]
 ```
 
 ### forUbuntu
@@ -148,9 +165,9 @@ Ubuntu는 `/tmp/.X11-unix` 소켓 마운트 방식이므로 별도 설정 불필
 
 ## Rebuild vs Reopen
 
-| 변경 파일 | 필요한 작업 |
+| Changed file | Required action |
 |-----------|------------|
 | `Dockerfile` | **Rebuild Container** |
 | `devcontainer.json` | Reopen in Container |
 | `docker-compose.yml` | Reopen in Container |
-| `dev-start.sh` | 즉시 반영 (스크립트 재실행) |
+| `dev-start.sh` | immediate (re-run the script) |

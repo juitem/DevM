@@ -1,4 +1,4 @@
-# Ubuntu 24.04 기반 Dev Container
+# Ubuntu 24.04 based Dev Container
 FROM ubuntu:24.04
 
 ARG USERNAME=juitem
@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gitk \
     && rm -rf /var/lib/apt/lists/*
 
-# 호스트 UID/GID와 일치하는 사용자 생성
+# Create user matching host UID/GID
 RUN if ! getent group $GROUP_ID > /dev/null; then \
         groupadd -g $GROUP_ID $USERNAME; \
     fi && \
@@ -56,11 +56,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
-# Backend 패키지 설치
+# Install backend packages
 COPY backend/requirements.txt /tmp/requirements.txt
 RUN pip install --break-system-packages --no-cache-dir -r /tmp/requirements.txt
 
-# 개발 도구
+# Dev tools
 RUN pip install --break-system-packages --no-cache-dir \
     ipython ipdb pytest pytest-cov black flake8 pylint mypy
 
@@ -69,7 +69,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# SSH + X11 + 네트워크 도구
+# SSH + X11 + network tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-client \
     openssh-server \

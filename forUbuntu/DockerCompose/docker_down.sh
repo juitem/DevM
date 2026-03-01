@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Ubuntu 전용 스크립트
+# Ubuntu only script
 if [[ "$OSTYPE" != "linux-gnu"* ]]; then
-    echo "이 스크립트는 Ubuntu 전용입니다."
+    echo "This script is for Ubuntu only."
     exit 1
 fi
 
@@ -26,18 +26,18 @@ echo -e "${BLUE}  🛑 Python + React GUI - Docker Stop${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
 
 if [ ! -f "$PROJECT_DIR/docker-compose.yml" ]; then
-    log_error "docker-compose.yml 파일을 찾을 수 없습니다."
+    log_error "docker-compose.yml not found."
     exit 1
 fi
 
-log_info "컨테이너 상태 확인 중..."
+log_info "Checking container status..."
 cd "$PROJECT_DIR"
 
 BACKEND_RUNNING=$(docker compose ps --status running --services 2>/dev/null | grep -c "backend" || true)
 FRONTEND_RUNNING=$(docker compose ps --status running --services 2>/dev/null | grep -c "frontend" || true)
 
 if [ "$BACKEND_RUNNING" -eq 0 ] && [ "$FRONTEND_RUNNING" -eq 0 ]; then
-    log_warning "실행 중인 컨테이너가 없습니다."
+    log_warning "No running containers found."
     exit 0
 fi
 
@@ -45,13 +45,13 @@ echo ""
 docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || docker compose ps
 echo ""
 
-log_info "컨테이너 중지 중..."
+log_info "Stopping containers..."
 if docker compose down; then
     echo ""
     echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}✓ 컨테이너가 정상적으로 중지되었습니다.${NC}"
+    echo -e "${GREEN}✓ Containers stopped successfully.${NC}"
     echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}\n"
 else
-    log_error "컨테이너 중지에 실패했습니다."
+    log_error "Failed to stop containers."
     exit 1
 fi

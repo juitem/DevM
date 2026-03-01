@@ -1,20 +1,19 @@
 #!/bin/bash
-# 컨테이너 내부 전용 시작 스크립트 (Ubuntu)
-# postStartCommand에서 자동 실행됨
+# Container-only startup script (runs inside the container)
 
 PROJECT=/home/juitem/ContainerFolder/devM/forMac/DockerSingle
 
-# pip user 설치 경로를 PATH에 추가
+# Add pip user install path to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
-# 기존 프로세스 종료
+# Kill any process occupying the given port
 kill_port() {
     local port=$1
     local pid
     if command -v lsof &>/dev/null; then
         pid=$(lsof -ti tcp:"$port" 2>/dev/null)
     else
-        # lsof 없을 때 Python으로 /proc/net/tcp 파싱
+        # Fallback: parse /proc/net/tcp with Python when lsof is unavailable
         pid=$(python3 - <<EOF
 import os, struct, socket
 target = format($port, '04X')

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Ubuntu 전용 스크립트
+# Ubuntu only script
 if [[ "$OSTYPE" != "linux-gnu"* ]]; then
-    echo "이 스크립트는 Ubuntu 전용입니다."
+    echo "This script is for Ubuntu only."
     exit 1
 fi
 

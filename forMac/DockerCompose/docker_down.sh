@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# 색상 정의
+# Color definitions
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 프로젝트 디렉토리
+# Project directory
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 호스트 UID/GID export
+# Export host UID/GID
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
-# 함수: 로깅
+# Logging functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -31,42 +31,42 @@ log_warning() {
     echo -e "${YELLOW}[!]${NC} $1"
 }
 
-# 제목 출력
+# Title
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  🛑 Python + React GUI - Docker Stop${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
 
-# docker-compose.yml 확인
+# Check docker-compose.yml
 if [ ! -f "$PROJECT_DIR/docker-compose.yml" ]; then
-    log_error "docker-compose.yml 파일을 찾을 수 없습니다."
+    log_error "docker-compose.yml not found."
     exit 1
 fi
 
-# 실행 중인 컨테이너 확인
-log_info "컨테이너 상태 확인 중..."
+# Check running containers
+log_info "Checking container status..."
 cd "$PROJECT_DIR"
 
 BACKEND_RUNNING=$(docker compose ps --status running --services 2>/dev/null | grep -c "backend" || true)
 FRONTEND_RUNNING=$(docker compose ps --status running --services 2>/dev/null | grep -c "frontend" || true)
 
 if [ "$BACKEND_RUNNING" -eq 0 ] && [ "$FRONTEND_RUNNING" -eq 0 ]; then
-    log_warning "실행 중인 컨테이너가 없습니다."
+    log_warning "No running containers found."
     exit 0
 fi
 
-# 실행 중인 서비스 출력
+# Show running services
 echo ""
 docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || docker compose ps
 echo ""
 
-# 컨테이너 중지
-log_info "컨테이너 중지 중..."
+# Stop containers
+log_info "Stopping containers..."
 if docker compose down; then
     echo ""
     echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}✓ 컨테이너가 정상적으로 중지되었습니다.${NC}"
+    echo -e "${GREEN}✓ Containers stopped successfully.${NC}"
     echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}\n"
 else
-    log_error "컨테이너 중지에 실패했습니다."
+    log_error "Failed to stop containers."
     exit 1
 fi

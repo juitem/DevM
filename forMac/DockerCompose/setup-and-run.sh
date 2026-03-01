@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# 색상 정의
+# Color definitions
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 프로젝트 디렉토리
+# Project directory
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 호스트 UID/GID를 환경변수로 export (docker-compose build args에 주입)
+# Export host UID/GID for docker-compose build args
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
-# 함수: 로깅
+# Logging functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -31,96 +31,105 @@ log_warning() {
     echo -e "${YELLOW}[!]${NC} $1"
 }
 
-# 제목 출력
+# Title
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  🚀 Python + React GUI - Docker Setup${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
 
-# 마운트 폴더 생성 (없을 경우 대비)
+# Create mount directories if missing
 mkdir -p ~/Docker/ContainerFolder/ssh_docker
 mkdir -p ~/Docker/ContainerFolder/CurSorServer
 mkdir -p ~/Docker/ContainerFolder/CurSor
 mkdir -p ~/Docker/ContainerFolder/GeMiNi
 mkdir -p ~/Docker/ContainerFolder/ClauDe
 
-# SSH 키를 컨테이너 마운트 폴더에 자동 동기화
-log_info "SSH 키 동기화 중..."
+# Sync SSH keys to container mount directory
+log_info "Syncing SSH keys..."
 cp -r ~/.ssh/. ~/Docker/ContainerFolder/ssh_docker/
 chmod 700 ~/Docker/ContainerFolder/ssh_docker
-log_success "SSH 키 동기화 완료"
+log_success "SSH keys synced"
 
-# macOS X11 접근 허용 (XQuartz 실행 중일 때만 유효)
+# macOS X11 access (only effective when XQuartz is running)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     if command -v xhost &> /dev/null; then
         if [ -z "$DISPLAY" ]; then
             export DISPLAY=:0
         fi
-        # +local: : 유닉스 소켓 경유 로컬 연결 전체 허용 (OrbStack 호환)
+        # +local: allows all local Unix socket connections
         xhost +local: > /dev/null 2>&1 \
-            && log_success "X11 접근 허용 (xhost +local:)" \
-            || log_warning "xhost 실행 실패 (XQuartz가 실행 중인지 확인하세요)"
-        log_info "gitk 등 X11 앱 사용 시: XQuartz 환경설정 → 보안 → '네트워크 클라이언트 연결 허용' 체크 필요"
+            && log_success "X11 access granted (xhost +local:)" \
+            || log_warning "xhost failed (is XQuartz running?)"
     else
-        log_warning "xhost 없음 - X11 앱 사용 시 XQuartz 설치 필요"
+        log_warning "xhost not found - install XQuartz to use X11 apps"
+    fi
+
+    # Generate Xauth cookie for Docker containers (wildcard - works with any display address)
+    # OrbStack containers connect to XQuartz over TCP, so MIT-MAGIC-COOKIE auth is required
+    if command -v xauth &> /dev/null; then
+        touch /tmp/.docker.xauth 2>/dev/null
+        xauth nlist :0 2>/dev/null | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge - 2>/dev/null \
+            && log_success "X11 auth cookie generated (/tmp/.docker.xauth)" \
+            || log_warning "X11 cookie generation failed (is XQuartz running?)"
+        log_info "For X11 apps (gitk etc.): XQuartz Preferences → Security → check 'Allow connections from network clients'"
     fi
 fi
 
-# Docker 설치 확인
-log_info "Docker 설치 확인 중..."
+# Check Docker installation
+log_info "Checking Docker installation..."
 if ! command -v docker &> /dev/null; then
-    log_error "Docker가 설치되어 있지 않습니다."
-    log_info "OrbStack 또는 Docker Desktop을 설치하고 실행한 후 다시 시도하세요."
+    log_error "Docker is not installed."
+    log_info "Please install OrbStack or Docker Desktop and try again."
     exit 1
 fi
-log_success "Docker가 설치되어 있습니다."
+log_success "Docker is installed."
 
-# Docker daemon 실행 확인
-log_info "Docker daemon 확인 중..."
+# Check Docker daemon
+log_info "Checking Docker daemon..."
 if ! docker info &> /dev/null; then
-    log_error "Docker daemon이 실행 중이 아닙니다."
-    log_info "OrbStack 또는 Docker Desktop을 실행해주세요."
+    log_error "Docker daemon is not running."
+    log_info "Please start OrbStack or Docker Desktop."
     exit 1
 fi
-log_success "Docker daemon이 실행 중입니다."
+log_success "Docker daemon is running."
 
-# Docker Compose 확인
-log_info "Docker Compose 확인 중..."
+# Check Docker Compose
+log_info "Checking Docker Compose..."
 if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    log_error "Docker Compose가 설치되어 있지 않습니다."
+    log_error "Docker Compose is not installed."
     exit 1
 fi
-log_success "Docker Compose가 설치되어 있습니다."
+log_success "Docker Compose is available."
 
-# 프로젝트 디렉토리 확인
-log_info "프로젝트 디렉토리: $PROJECT_DIR"
+# Verify project directory
+log_info "Project directory: $PROJECT_DIR"
 if [ ! -f "$PROJECT_DIR/docker-compose.yml" ]; then
-    log_error "docker-compose.yml 파일을 찾을 수 없습니다."
+    log_error "docker-compose.yml not found."
     exit 1
 fi
-log_success "프로젝트 구조 확인 완료"
+log_success "Project structure verified."
 
-# 기존 컨테이너 정리 (선택)
-log_info "기존 컨테이너 정리 중..."
+# Stop existing containers
+log_info "Stopping existing containers..."
 cd "$PROJECT_DIR"
 docker compose down 2>/dev/null || true
 
-# Docker 이미지 빌드 및 컨테이너 실행
-log_info "Docker 이미지 빌드 및 컨테이너 실행 중..."
-echo -e "\n${YELLOW}(이 과정은 처음에는 몇 분이 걸릴 수 있습니다)${NC}\n"
+# Build image and start containers
+log_info "Building Docker image and starting containers..."
+echo -e "\n${YELLOW}(This may take a few minutes on first run)${NC}\n"
 
 if docker compose up -d; then
-    log_success "Docker Compose가 시작되었습니다."
+    log_success "Docker Compose started."
 else
-    log_error "Docker Compose 시작에 실패했습니다."
+    log_error "Failed to start Docker Compose."
     exit 1
 fi
 
-# 서비스 대기
-log_info "서비스가 시작될 때까지 대기 중..."
+# Wait for services
+log_info "Waiting for services to start..."
 sleep 5
 
-# 서비스 상태 확인
-log_info "서비스 상태 확인 중..."
+# Check service status
+log_info "Checking service status..."
 echo ""
 
 BACKEND_READY=false
@@ -130,12 +139,12 @@ MAX_ATTEMPTS=30
 
 while [ $COUNTER -lt $MAX_ATTEMPTS ]; do
     if ! $BACKEND_READY && curl -s http://localhost:8000/api/status > /dev/null 2>&1; then
-        log_success "Backend API가 준비되었습니다 ✓"
+        log_success "Backend API is ready ✓"
         BACKEND_READY=true
     fi
 
     if ! $FRONTEND_READY && curl -s http://localhost:3000 > /dev/null 2>&1; then
-        log_success "Frontend가 준비되었습니다 ✓"
+        log_success "Frontend is ready ✓"
         FRONTEND_READY=true
     fi
 
@@ -148,42 +157,42 @@ while [ $COUNTER -lt $MAX_ATTEMPTS ]; do
 done
 
 if ! $BACKEND_READY || ! $FRONTEND_READY; then
-    log_warning "일부 서비스가 아직 준비 중일 수 있습니다."
-    log_info "로그를 확인하려면: docker compose logs -f"
+    log_warning "Some services may still be starting up."
+    log_info "Check logs with: docker compose logs -f"
 fi
 
 echo ""
 echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✓ 설정 완료!${NC}"
+echo -e "${GREEN}✓ Setup complete!${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}\n"
 
-# 브라우저 자동 열기
-log_info "브라우저에서 애플리케이션을 열 준비가 되었습니다.\n"
+# Open browser
+log_info "Application is ready.\n"
 
-echo -e "${BLUE}접속 정보:${NC}"
+echo -e "${BLUE}Access URLs:${NC}"
 echo -e "  🌐 Frontend: ${GREEN}http://localhost:3000${NC}"
 echo -e "  📡 Backend:  ${GREEN}http://localhost:8000${NC}"
 echo -e "  📊 API:      ${GREEN}http://localhost:8000/api/status${NC}"
 echo ""
 
-# Mac에서 브라우저 자동 열기
+# Auto-open browser on Mac
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    read -p "브라우저에서 열시겠습니까? (y/n) " -n 1 -r
+    read -p "Open in browser? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        log_info "브라우저를 열고 있습니다..."
+        log_info "Opening browser..."
         sleep 2
         open "http://localhost:3000"
     fi
 fi
 
-echo -e "${BLUE}유용한 명령어:${NC}"
-echo -e "  • 로그 보기:      ${YELLOW}docker compose logs -f${NC}"
-echo -e "  • 컨테이너 상태:  ${YELLOW}docker compose ps${NC}"
-echo -e "  • 서비스 중지:    ${YELLOW}docker compose down${NC}"
-echo -e "  • Backend 접속:   ${YELLOW}docker compose exec backend bash${NC}"
-echo -e "  • Frontend 접속:  ${YELLOW}docker compose exec frontend sh${NC}"
+echo -e "${BLUE}Useful commands:${NC}"
+echo -e "  • View logs:        ${YELLOW}docker compose logs -f${NC}"
+echo -e "  • Container status: ${YELLOW}docker compose ps${NC}"
+echo -e "  • Stop services:    ${YELLOW}docker compose down${NC}"
+echo -e "  • Access backend:   ${YELLOW}docker compose exec backend bash${NC}"
+echo -e "  • Access frontend:  ${YELLOW}docker compose exec frontend sh${NC}"
 echo ""
 
-echo -e "${GREEN}✓ Docker가 실행 중입니다. 로그를 보려면 아래 명령어를 실행하세요:${NC}"
+echo -e "${GREEN}✓ Docker is running. To view logs:${NC}"
 echo -e "  ${YELLOW}cd $PROJECT_DIR && docker compose logs -f${NC}\n"

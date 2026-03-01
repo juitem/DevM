@@ -13,9 +13,7 @@
         "ms-python.debugpy",
         "ms-python.black-formatter",
         "charliermarsh.ruff",
-        "ms-vscode.makefile-tools",
         "ms-vscode-remote.remote-containers",
-        "github.copilot",
         "eamodio.gitlens"
       ],
       "settings": {
@@ -37,6 +35,7 @@
       }
     }
   },
+  "initializeCommand": ["bash", "-c", "touch /tmp/.docker.xauth 2>/dev/null; xauth nlist :0 2>/dev/null | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge - 2>/dev/null; true"],
   "mounts": [
     "source=${localEnv:HOME}/Docker/ContainerFolder/ssh_docker,target=/home/juitem/.ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/CurSorServer,target=/home/juitem/.cursor-server,type=bind,consistency=cached",
@@ -46,10 +45,12 @@
     "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/GitConfig/.gitconfig,target=/home/juitem/.gitconfig,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/NpM,target=/home/juitem/.npm,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/Docker/ContainerFolder/BashAliases/.bash_aliases,target=/home/juitem/.bash_aliases,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/Docker/ContainerFolder/BashAliases/.bash_aliases,target=/home/juitem/.bash_aliases,type=bind,consistency=cached",
+    "source=/tmp/.docker.xauth,target=/home/juitem/.Xauthority,type=bind,consistency=cached"
   ],
   "containerEnv": {
-    "DISPLAY": "host.docker.internal:0"
+    "DISPLAY": "host.docker.internal:0",
+    "XAUTHORITY": "/home/juitem/.Xauthority"
   },
   "forwardPorts": [8000],
   "portsAttributes": {
