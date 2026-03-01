@@ -108,6 +108,9 @@ bash ~/ContainerFolder/devM/forUbuntu/DockerSingle/dev-start.sh
 | `GitConfig/.gitconfig` | `~/.gitconfig` |
 | `NpM/` | `~/.npm` |
 | `BashAliases/.bash_aliases` | `~/.bash_aliases` |
+| `AntiGravity/` | `~/.antigravity` |
+| `CodeGpt/` | `~/.codegpt` |
+| `Codex/` | `~/.codex` |
 | `ContainerFolder/` (full) | `~/ContainerFolder` |
 
 > `~/.bash_aliases` is automatically sourced by Ubuntu's default `.bashrc`.

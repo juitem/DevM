@@ -47,7 +47,10 @@
     "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
     "source=${localEnv:HOME}/Docker/ContainerFolder/GitConfig/.gitconfig,target=/home/juitem/.gitconfig,type=bind,consistency=cached",
     "source=${localEnv:HOME}/Docker/ContainerFolder/NpM,target=/home/juitem/.npm,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/Docker/ContainerFolder/BashAliases/.bash_aliases,target=/home/juitem/.bash_aliases,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/Docker/ContainerFolder/BashAliases/.bash_aliases,target=/home/juitem/.bash_aliases,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/AntiGravity,target=/home/juitem/.antigravity,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CodeGpt,target=/home/juitem/.codegpt,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/Codex,target=/home/juitem/.codex,type=bind,consistency=cached"
   ],
   "containerEnv": {
     "DISPLAY": ":0",
