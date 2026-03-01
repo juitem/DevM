@@ -1,0 +1,53 @@
+name: dockercompose-ubuntu
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
+    container_name: python-gui-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+      - /workspace:/workspace
+      - ~/Docker/ContainerFolder/ssh_docker:/home/juitem/.ssh:ro
+      - ~/Docker/ContainerFolder:/home/juitem/ContainerFolder
+      - ~/Docker/ContainerFolder/CurSor:/home/juitem/.cursor
+      - ~/Docker/ContainerFolder/GeMiNi:/home/juitem/.gemini
+      - ~/Docker/ContainerFolder/ClauDe:/home/juitem/.claude
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+      - DISPLAY=${DISPLAY:-:0}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    working_dir: /app
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-gui-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - BROWSER=none
+    depends_on:
+      backend:
+        condition: service_healthy

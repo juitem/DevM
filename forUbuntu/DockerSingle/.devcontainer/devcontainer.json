@@ -1,0 +1,66 @@
+{
+  "name": "Python + React Single Container (Ubuntu)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "USER_ID": "${localEnv:USER_ID:1000}",
+      "GROUP_ID": "${localEnv:GROUP_ID:1000}"
+    }
+  },
+  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+  "workspaceFolder": "/home/juitem/ContainerFolder",
+  "remoteUser": "juitem",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "ms-vscode.makefile-tools",
+        "ms-vscode-remote.remote-containers",
+        "github.copilot",
+        "eamodio.gitlens",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3.12",
+        "python.linting.enabled": true,
+        "python.formatting.provider": "black",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "ms-python.python"
+        },
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"]
+      }
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ssh_docker,target=/home/juitem/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSorServer,target=/home/juitem/.cursor-server,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSor,target=/home/juitem/.cursor,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/GeMiNi,target=/home/juitem/.gemini,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ClauDe,target=/home/juitem/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached",
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+  ],
+  "containerEnv": {
+    "DISPLAY": ":0",
+    "BROWSER": "none"
+  },
+  "forwardPorts": [8000, 3000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Frontend React",
+      "onAutoForward": "notify"
+    }
+  }
+}

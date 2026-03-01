@@ -1,0 +1,58 @@
+{
+  "name": "Python + React Dev Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/home/juitem/ContainerFolder",
+  "remoteUser": "juitem",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "ms-vscode.makefile-tools",
+        "ms-vscode-remote.remote-containers",
+        "github.copilot",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3.12",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "ms-python.python",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": [
+          "tests"
+        ]
+      }
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ssh_docker,target=/home/juitem/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSorServer,target=/home/juitem/.cursor-server,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/CurSor,target=/home/juitem/.cursor,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/GeMiNi,target=/home/juitem/.gemini,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder/ClauDe,target=/home/juitem/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/Docker/ContainerFolder,target=/home/juitem/ContainerFolder,type=bind,consistency=cached"
+  ],
+  "containerEnv": {
+    "DISPLAY": "host.docker.internal:0"
+  },
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    }
+  }
+}
